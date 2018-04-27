@@ -40,6 +40,7 @@ Other features coming soon
 #define TIME_MSG_LEN 11
 #define TIME_HEADER 'T'
 
+
 // CO_2 sensor
 #define         MG_PIN                       (A2)     //define which analog input channel you are going to use
 #define         BOOL_PIN                     (2)
@@ -58,6 +59,10 @@ File myFile;
 int hours = 0;
 int minutes = 0;
 int seconds = 0;
+
+// motor driver variables
+const int pinPwm = 11;
+const int pinDir = 13;
 
 //-------------------- Functions -----------------------------
 //    Function prototypes and definitions are stored here    -
@@ -158,6 +163,10 @@ void setup()
     SeeedGrayOled.setTextXY(0,0);             //set Cursor to 1st line, 0th column
     SeeedGrayOled.setGrayLevel(1);            //Set Grayscale level. Any number between 0 - 15.
     SeeedGrayOled.putString("Data Readings"); //Print Title
+
+    // motor driver code
+    pinMode(pinPwm, OUTPUT);
+    pinMode(pinDir, OUTPUT);
 }
 
 //---------------- put your main code here, to run repeatedly:-----------------
@@ -339,4 +348,18 @@ void loop()
     }
 
     myFile.close();
+
+    // motor driver code
+    if(t >= 37)
+    {
+      analogWrite(pinPwm, -20);
+      digitalWrite(pinDir, HIGH);
+      Serial.println("Is cooling");
+    }
+    else
+    {
+      analogWrite(pinPwm, -20);
+      digitalWrite(pinDir, HIGH);
+      Serial.println("Is heating");
+    }
 }
