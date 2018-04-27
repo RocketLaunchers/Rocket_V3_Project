@@ -46,7 +46,7 @@ Other features coming soon
 #define         BOOL_PIN                     (2)
 #define         DC_GAIN                      (8.5)   //define the DC gain of amplifier
 #define         READ_SAMPLE_INTERVAL         (50)    //define how many samples you are going to take in normal operation
-#define         READ_SAMPLE_TIMES            (5)     //define the time interval(in milisecond) between each samples in 
+#define         READ_SAMPLE_TIMES            (5)     //define the time interval(in milisecond) between each samples in
 #define         ZERO_POINT_VOLTAGE           (0.220) //define the output of the sensor in volts when the concentration of CO2 is 400PPM
 #define         REACTION_VOLTGAE             (0.030) //define the voltage drop of the sensor when move the sensor from air into 1000ppm CO2
 
@@ -54,7 +54,7 @@ Other features coming soon
 // globals
 char floatStr[9];
 char dataStr[24];
-float CO2Curve[3]  =  {2.602,ZERO_POINT_VOLTAGE,(REACTION_VOLTGAE/(2.602-3))}; 
+float CO2Curve[3]  =  {2.602,ZERO_POINT_VOLTAGE,(REACTION_VOLTGAE/(2.602-3))};
 File myFile;
 int hours = 0;
 int minutes = 0;
@@ -75,7 +75,7 @@ DHT dht(DHTPIN, DHTTYPE);   // controls temp
 Input:   mg_pin - analog channel
 Output:  output of SEN-000007
 Remarks: This function reads the output of SEN-000007
-************************************************************************************/ 
+************************************************************************************/
 float MGRead(int mg_pin)
 {
     int i;
@@ -86,22 +86,22 @@ float MGRead(int mg_pin)
         delay(READ_SAMPLE_INTERVAL);
     }
     v = (v/READ_SAMPLE_TIMES) *5/1024 ;
-    return v;  
+    return v;
 }
 /*****************************  MQGetPercentage **********************************
 Input:   volts   - SEN-000007 output measured in volts
          pcurve  - pointer to the curve of the target gas
 Output:  ppm of the target gas
-Remarks: By using the slope and a point of the line. The x(logarithmic value of ppm) 
-         of the line could be derived if y(MG-811 output) is provided. As it is a 
-         logarithmic coordinate, power of 10 is used to convert the result to non-logarithmic 
+Remarks: By using the slope and a point of the line. The x(logarithmic value of ppm)
+         of the line could be derived if y(MG-811 output) is provided. As it is a
+         logarithmic coordinate, power of 10 is used to convert the result to non-logarithmic
          value.
-************************************************************************************/ 
+************************************************************************************/
 int  MGGetPercentage(float volts, float *pcurve)
 {
    if ((volts/DC_GAIN )>=ZERO_POINT_VOLTAGE) {
       return -1;
-   } else { 
+   } else {
       return pow(10, ((volts/DC_GAIN)-pcurve[1])/pcurve[2]+pcurve[0]);
    }
 }
@@ -132,21 +132,21 @@ void setup()
 
     // SD Card code
     Serial.println("Initializing SD card...");
-  
+
     // On the Ethernet Shield, CS is pin 4. It's set as an output by default.
-    // Note that even if it's not used as the CS pin, the hardware SS pin 
-    // (10 on most Arduino boards, 53 on the Mega) must be left as an output 
-    // or the SD library functions will not work. 
+    // Note that even if it's not used as the CS pin, the hardware SS pin
+    // (10 on most Arduino boards, 53 on the Mega) must be left as an output
+    // or the SD library functions will not work.
     pinMode(10, OUTPUT);
-     
-    if (!SD.begin(10)) 
+
+    if (!SD.begin(10))
     {
         Serial.print("Init failed!");
         return;
     }
-    
+
     Serial.println("initialization done.");
-    floatStr[0] = '\0';   
+    floatStr[0] = '\0';
     analogReference(INTERNAL);
 
     // CO2 code
@@ -159,7 +159,7 @@ void setup()
     SeeedGrayOled.clearDisplay();             //Clear Display.
     SeeedGrayOled.setNormalDisplay();         //Set Normal Display Mode
     SeeedGrayOled.setVerticalMode();          // Set to vertical mode for displaying text
-  
+
     SeeedGrayOled.setTextXY(0,0);             //set Cursor to 1st line, 0th column
     SeeedGrayOled.setGrayLevel(1);            //Set Grayscale level. Any number between 0 - 15.
     SeeedGrayOled.putString("Data Readings"); //Print Title
@@ -181,15 +181,15 @@ void loop()
     updateTime();
 
     // open the file. note that only one file can be open at a time,
-    // so you have to close this one before opening another.   
+    // so you have to close this one before opening another.
     myFile = SD.open("test.txt", FILE_WRITE);
-    
+
     // if the file opened okay, write to it:
-    if (myFile) 
+    if (myFile)
     {
         Serial.println("File opened for writing.");
-    } 
-    else 
+    }
+    else
     {
         // if the file didn't open, print an error:
         Serial.println("error opening test.txt");
@@ -205,11 +205,11 @@ void loop()
     t = dht.readTemperature();
 
     // check if returns are valid, if they are NaN (not a number) then something went wrong!
-    if (isnan(t) || isnan(h)) 
+    if (isnan(t) || isnan(h))
     {
         Serial.println("Failed to read from DHT");
-    } 
-    else 
+    }
+    else
     {
         //---------- Output data ----------
 
@@ -222,28 +222,28 @@ void loop()
         SeeedGrayOled.setTextXY(1,0);  //set Cursor to 2nd line, 0th column
 
         // Output data to serial output window
-        Serial.print("Humidity: "); 
+        Serial.print("Humidity: ");
         Serial.print(h);
         Serial.print("  ");
-        Serial.print("Temperature: "); 
+        Serial.print("Temperature: ");
         Serial.print(t);
         Serial.print(" *C");
         Serial.print("   ");
         Serial.print("CO2: ");
-        if (percentage == -1) 
+        if (percentage == -1)
         {
             Serial.print( "<400" );
-            
+
             // also output to OLED and SD (prevents repeat code)
-            SeeedGrayOled.putString("CO2: ");    
+            SeeedGrayOled.putString("CO2: ");
             SeeedGrayOled.putString("<400 ppm");
 
             myFile.print("\tCO2: <400 ppm ");
         }
-        else 
+        else
         {
             Serial.print(percentage);
-            
+
             // also output to OLED and SD (prevents repeat code)
             SeeedGrayOled.putString("CO2: ");
             SeeedGrayOled.putNumber(percentage);
@@ -258,7 +258,7 @@ void loop()
         Serial.print("Time: ");
         Serial.print(hours);
         Serial.print(":");
-        
+
         if(minutes < 10)
         {
             Serial.print("0");
@@ -268,9 +268,9 @@ void loop()
         {
             Serial.print(minutes);
         }
-        
+
         Serial.print(":");
-        
+
         if(seconds < 10)
         {
             Serial.print("0");
@@ -281,13 +281,13 @@ void loop()
             Serial.print(seconds);
         }
         Serial.print("\n");
-        
+
         // Print temp and humi to OLED
         SeeedGrayOled.setTextXY(2,0);  //set Cursor to 3rd line, 0th column
         SeeedGrayOled.putString("H: ");
         SeeedGrayOled.putNumber(h);
-        SeeedGrayOled.putString(" ");  
-        
+        SeeedGrayOled.putString(" ");
+
         SeeedGrayOled.putString("T: ");
         SeeedGrayOled.putNumber(t);
         SeeedGrayOled.putString("C");
@@ -305,9 +305,9 @@ void loop()
         {
             SeeedGrayOled.putNumber(minutes);
         }
-        
+
         SeeedGrayOled.putString(":");
-        
+
         if(seconds < 10)
         {
             SeeedGrayOled.putString("0");
@@ -332,9 +332,9 @@ void loop()
         {
             myFile.print(minutes);
         }
-        
+
         myFile.print(":");
-        
+
         if(seconds < 10)
         {
             myFile.print("0");
@@ -350,14 +350,17 @@ void loop()
     myFile.close();
 
     // motor driver code
+    SeeedGrayOled.setTextXY(3,0);
     if(t >= 37)
     {
+      SeeedGrayOLED.putString("Its cooling");
       analogWrite(pinPwm, -20);
       digitalWrite(pinDir, HIGH);
       Serial.println("Is cooling");
     }
     else
     {
+      SeeedGrayOLED.putString("Its heating");
       analogWrite(pinPwm, -20);
       digitalWrite(pinDir, HIGH);
       Serial.println("Is heating");
